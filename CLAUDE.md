@@ -200,6 +200,7 @@ export const blocks = {
 
 1. Update config schema in `main.ts`
 2. Access via `input.app.config.fieldName`
+3. For both app and block configs, make sure to use `default:` fields with `required: false`, when applicable, rather than using an optional field and conditionally providing a default value in app handlers.
 
 ### Adding Dependencies
 

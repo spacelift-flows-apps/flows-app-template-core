@@ -118,6 +118,10 @@ const apiKey = input.app.config.apiKey as string;
 const baseUrl = input.app.config.baseUrl as string;
 ```
 
+### Schema
+
+- Make sure to properly mark required field as required in the schema (whether config field, or event output).
+
 ## Development Workflow
 
 ### Local Development

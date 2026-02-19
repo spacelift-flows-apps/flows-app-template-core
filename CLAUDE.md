@@ -150,6 +150,95 @@ The template includes a complete CI/CD system:
 
 ## Best Practices
 
+### Configuration
+
+For commonly-static fields, try providing `suggestValues`. For example, in the Jira app we have
+```ts
+async function fetchIssueTypes(
+  jiraUrl: string,
+  email: string,
+  apiToken: string,
+  projectKey: string,
+): Promise<IssueType[]> {
+  const client = createJiraClient({ jiraUrl, email, apiToken });
+  const allTypes: IssueType[] = [];
+  let startAt = 0;
+  const maxResults = 50;
+
+  for (let page = 0; page < 10; page++) {
+    const response = await client.get<IssueTypePagedResponse>(
+      `/issue/createmeta/${projectKey}/issuetypes?startAt=${startAt}&maxResults=${maxResults}`,
+    );
+    if (!response.issueTypes || response.issueTypes.length === 0) break;
+    allTypes.push(...response.issueTypes);
+    if (startAt + response.issueTypes.length >= response.total) break;
+    startAt += response.issueTypes.length;
+  }
+
+  return allTypes;
+}
+
+const getIssueTypes = memoizee(fetchIssueTypes, {
+  maxAge: 60000,
+  promise: true,
+});
+
+// ...
+
+inputs: {
+  default: {
+    config: {
+      projectKey: {...},
+      issueTypeName: {
+        name: "Issue Type",
+          description: "The name of the issue type (e.g., 'Bug', 'Task', 'Story', 'Epic')",
+          type: "string",
+          required: true,
+          suggestValues: async (input) => {
+            const { jiraUrl, email, apiToken } = input.app.config;
+            const projectKey = input.staticInputConfig?.projectKey as
+              | string
+              | undefined;
+            
+            if (!projectKey) {
+              return {
+                suggestedValues: [],
+                message:
+                  "Configure static value for Project Key to receive suggestions.",
+              };
+            }
+            
+            const allTypes = await getIssueTypes(
+              jiraUrl as string,
+              email as string,
+              apiToken as string,
+              projectKey,
+            );
+            
+            let values = allTypes.map((type) => ({
+              label: type.name,
+              value: type.name,
+              description: type.description,
+            }));
+            
+            if (input.searchPhrase) {
+              const searchLower = input.searchPhrase.toLowerCase();
+              values = values.filter(
+                (v) =>
+                  v.label.toLowerCase().includes(searchLower) ||
+                  (v.description &&
+                    v.description.toLowerCase().includes(searchLower)),
+              );
+            }
+            
+            return { suggestedValues: values.slice(0, 50) };
+          },
+        },
+```
+The memoization helps avoid making a ton of api calls as the user is fine-tuning their search phrase.
+
+It's not worth it providing those for fields that are very dynamic, and the user will generally want to base on event data.
+
 ### Code Organization
 
 - Modular block structure in `blocks/` directory

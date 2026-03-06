@@ -264,6 +264,12 @@ It's not worth it providing those for fields that are very dynamic, and the user
 - Comprehensive README
 - Type annotations for all interfaces
 
+### Blocks
+
+- When creating blocks for a subset of an api, or handlers for a subset of webhooks, always add "escape hatch blocks".
+  - A block for making authenticated well–structured requests to any api endpoint.
+  - A block for receiving any/all valid webhooks.
+
 ## Extension Guidelines
 
 ### Adding New Blocks

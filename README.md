@@ -2,6 +2,14 @@
 
 A template repository for creating new core Flows apps with best practices and CI/CD built-in.
 
+## Quick Start with Claude Code
+
+1. **Use this template** - Click "Use this template" button to create a new repository
+2. **Run setup** - `npm run setup` to customize placeholders automatically
+3. Install the Flows App Development skill for Claude Code by running `claude plugin marketplace add spacelift-flows-apps/agent-skills && claude plugin install flows-app-dev@spacelift-flows-apps`
+4. Start Claude Code in the repository directory and describe your app for it to implement.
+5. Publish in the Core Flows App registry.
+
 ## Quick Start
 
 1. **Use this template** - Click "Use this template" button to create a new repository
